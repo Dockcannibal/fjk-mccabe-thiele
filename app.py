@@ -18,8 +18,11 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("McCabe-Thiele Distillation Design")
-st.caption("Benzene (1) / Toluene (2)  ·  Ideal Raoult's law  ·  Antoine equation")
+st.title("McCabe-Thiele Distillation Design — Interactive Learning Tool")
+st.caption(
+    "Benzene (1) / Toluene (2)  ·  Ideal Raoult's law  ·  Antoine equation  ·  "
+    "Explore how reflux ratio, feed quality, and compositions affect the number of theoretical stages."
+)
 
 
 # ── Cached computations ───────────────────────────────────────────────────────
@@ -136,9 +139,15 @@ m_col4.metric(
     delta_color="off",
 )
 
-if RR < R_min * 1.05:
+if RR < R_min:
+    st.error(
+        f"R = {RR:.2f} is below R_min = {R_min:.3f}. "
+        "Separation is thermodynamically impossible at this reflux ratio."
+    )
+    st.stop()
+elif RR < R_min * 1.10:
     st.warning(
-        f"R = {RR:.2f} is within 5 % of R_min = {R_min:.3f}. "
+        f"R = {RR:.2f} is within 10 % of R_min = {R_min:.3f}. "
         "Separation may require a very large number of stages."
     )
 if stage_error:
