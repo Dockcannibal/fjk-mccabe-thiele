@@ -105,17 +105,6 @@ P_sys_bar = float(np.interp(xF, x_eq, P_arr))
 
 R_min, x_pinch, y_pinch = get_rmin(x_eq, y_eq, xF, xD, qq_calc)
 
-try:
-    MCT_x, MCT_y, n_stages, Qx, Qy = get_stages(
-        x_eq, y_eq, RR, xF, xB, xD, qq_calc
-    )
-    stage_error = None
-except Exception as exc:
-    stage_error = str(exc)
-    n_stages    = 0
-    MCT_x = MCT_y = []
-    Qx = Qy = None
-
 # ── Key metrics ───────────────────────────────────────────────────────────────
 m_col1, m_col2, m_col3, m_col4 = st.columns(4)
 m_col1.metric(
@@ -123,10 +112,6 @@ m_col1.metric(
     value=f"{P_sys_bar:.3f} bar",
     delta=f"{P_sys_bar * 14.5038:.1f} psia",
     delta_color="off",
-)
-m_col2.metric(
-    label="Theoretical Stages",
-    value=str(n_stages) if not stage_error else "—",
 )
 m_col3.metric(
     label="Minimum Reflux  R_min",
@@ -150,6 +135,22 @@ elif RR < R_min * 1.10:
         f"R = {RR:.2f} is within 10 % of R_min = {R_min:.3f}. "
         "Separation may require a very large number of stages."
     )
+
+try:
+    MCT_x, MCT_y, n_stages, Qx, Qy = get_stages(
+        x_eq, y_eq, RR, xF, xB, xD, qq_calc
+    )
+    stage_error = None
+except Exception as exc:
+    stage_error = str(exc)
+    n_stages    = 0
+    MCT_x, MCT_y = [], []
+    Qx = Qy = None
+
+m_col2.metric(
+    label="Theoretical Stages",
+    value=str(n_stages) if not stage_error else "—",
+)
 if stage_error:
     st.warning(
         f"Stage stepping failed: {stage_error}  \n"
